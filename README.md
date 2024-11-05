@@ -1,4 +1,4 @@
-# Das Zürcher Parzival-Skriptorium
+# Die Handschriften des Wellcome-Schreibers
 
 ## Web publication pending
 
