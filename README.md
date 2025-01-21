@@ -1,12 +1,12 @@
 # Die Handschriften des Wellcome-Schreibers
 
-## Web publication pending
+## [Web publication](https://dhbern.github.io/wellcome-schreiber)
 
 ## Origin
 
 * (TBD)
 
-For the time being, access to the materials requires a valid access code. Please get in touch with the project team to request one.
+<!-- For the time being, access to the materials requires a valid access code. Please get in touch with the project team to request one. -->
 
 *Archival version (as-is): Data Science Lab, pdaengeli, 2024-11-04*
 
@@ -30,4 +30,4 @@ PWD: root directory of this repository
 
 </details>
 
-Technical note: due to access restrictions, the deployment of the Wellcome Schreiber Github Page is orchestrated in [`wellcome-schreiber-alpha`](https://github.com/dhbern/wellcome-schreiber-alpha).
+<!-- Technical note: due to access restrictions, the deployment of the Wellcome Schreiber Github Page is orchestrated in [`wellcome-schreiber-alpha`](https://github.com/dhbern/wellcome-schreiber-alpha). -->
