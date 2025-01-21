@@ -6,6 +6,8 @@
 
 * (TBD)
 
+For the time being, access to the materials requires a valid access code. Please get in touch with the project team to request one.
+
 *Archival version (as-is): Data Science Lab, pdaengeli, 2024-11-04*
 
 ## License
@@ -27,3 +29,5 @@ PWD: root directory of this repository
 * (re)moved:
 
 </details>
+
+Technical note: due to access restrictions, the deployment of the Wellcome Schreiber Github Page is orchestrated in [`wellcome-schreiber-alpha`](https://github.com/dhbern/wellcome-schreiber-alpha).
