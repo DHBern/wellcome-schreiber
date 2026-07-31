@@ -51,9 +51,11 @@
   // range are all preserved — only the initial frame changes.
   // Placeholder eyeball values — replace with real ratios once physical
   // folio dimensions are on hand (scale = thisMsWidth / largestMsWidth).
+  // also added some percentages to Basel KII11 and Wellcome49 as the photographs
+  // show more surrounding border, so the image size does not reflect the actual size.
   var MANUSCRIPT_SCALE = {
-    B: 0.82, // Basel KII11
-    W: 0.98, // Wellcome49
+    B: 0.88, // Basel KII11
+    W: 1, // Wellcome49
     C: 1.0, // Casanatense1404
     Z: 0.52, // Basel NI1_79
     Y: 0.8, // NewYork15
@@ -691,30 +693,49 @@
       leftGuid  ? fetchInfo(leftGuid)  : Promise.resolve(null),
       rightGuid ? fetchInfo(rightGuid) : Promise.resolve(null),
     ]).then(function (infos) {
-      // With OSD's `clip`, an item's displayed bounds still come from
-      // the full master (clip only culls tiles outside the rect). So a
-      // clipped folio would leave a blank strip where the cropped-away
-      // part used to be. We compensate by placing each item at an x
-      // that shifts its clip-left onto the intended viewport-x.
-      //
-      // In an item's own space (height=1), 1 master-pixel = 1/masterH
-      // viewport units, so clip-left in viewport units is
-      //   (crop.x / 100) * (masterW / masterH)   [= (crop.x/100) * masterAR]
-      // Setting item.x = intendedX - clipLeftVU makes the clip's left
-      // edge land exactly at intendedX.
       var leftInfo  = infos[0];
       var rightInfo = infos[1];
-      var leftDisplayedAR = displayedAspectRatio(leftGuid, leftInfo);
 
+      // OSD's `clip` only culls tiles outside the rect — it does NOT
+      // rescale or reposition the item, whose displayed bounds still come
+      // from the full master. So we shift each item by -clipLeftVU to land
+      // its clip's LEFT edge on the intended viewport-x, and we butt the
+      // next folio against this one's clip RIGHT edge (its visible width).
+      //
+      // All measurements below are in the item's own space, where OSD has
+      // scaled the FULL master to height = 1. In that space one master
+      // pixel is 1/masterH viewport units, so the full master is masterAR
+      // (= masterW/masterH) VU wide. A clip rect only culls tiles — it does
+      // NOT rescale the item — so the clip's edges land at fixed offsets
+      // measured off that full-master box:
+      //   clip-left  VU = (crop.x       / 100) * masterAR
+      //   clip-right VU = ((crop.x+w)   / 100) * masterAR
+      //   visible width = (crop.w       / 100) * masterAR
+      // The earlier bug used displayedAspectRatio() (= cropW/cropH · AR)
+      // for the visible width. That divides by the cropped HEIGHT instead
+      // of the master height, so any h<100 crop over-reports the width and
+      // shoves the right folio away, opening an empty gap in the gutter.
+      function masterAR(info) {
+        return info ? info.width / info.height : 1;
+      }
       function clipLeftVU(guid, info) {
         if (!info) return 0;
         var crop = GUID_CROP_PCT[guid];
         if (!crop) return 0;
-        return (crop.x / 100) * (info.width / info.height);
+        return (crop.x / 100) * masterAR(info);
+      }
+      // Displayed width of the folio in height=1 space: the clipped window
+      // when a crop applies, else the full master. This is what the next
+      // folio must butt against.
+      function visibleWidthVU(guid, info) {
+        if (!info) return 1;
+        var crop = GUID_CROP_PCT[guid];
+        var wPct = crop ? crop.w : 100;
+        return (wPct / 100) * masterAR(info);
       }
 
       var tileSources = [];
-      var leftVisibleW = leftDisplayedAR || 1; // width of the cropped left folio
+      var leftVisibleW = visibleWidthVU(leftGuid, leftInfo); // cropped left folio width
       if (leftGuid) {
         var leftCfg = tileSourceConfigForGuid(
           leftGuid,
@@ -851,21 +872,6 @@
         _infoCache[guid] = null;
         return null;
       });
-  }
-
-  // Displayed aspect ratio (width/height) for this GUID: reflects the
-  // GUID_CROP_PCT region when one applies, else the master's raw AR.
-  // Returns null if the info wasn't fetchable.
-  function displayedAspectRatio(guid, info) {
-    if (!info) return null;
-    var w = info.width;
-    var h = info.height;
-    var crop = GUID_CROP_PCT[guid];
-    if (crop) {
-      w *= (crop.w / 100);
-      h *= (crop.h / 100);
-    }
-    return w / h;
   }
 
   function makeInlineBanner(message) {
