@@ -10,6 +10,8 @@
 
 *Archival version (as-is): Data Science Lab, pdaengeli, 2024-11-04*
 
+*UI improvements, migration to IIIF: Parzival team, domsteinbach, 2026-08-14*, https://github.com/DHBern/wellcome-schreiber/pull/4
+
 ## License
 
 ---
